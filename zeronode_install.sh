@@ -42,7 +42,7 @@ purgeOldInstallation() {
     sudo ufw delete allow $COIN_PORT/tcp > /dev/null 2>&1
     #remove old files
     rm rm -- "$0" > /dev/null 2>&1
-    sudo rm -rf $CONFIGFOLDER > /dev/null 2>&1
+    sudo rm -f $CONFIGFOLDER/$CONFIG_FILE > /dev/null 2>&1
     sudo rm -rf /usr/local/bin/$COIN_CLI /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_CLI /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
@@ -130,7 +130,9 @@ EOF
 
 
 function create_config() {
-  mkdir $CONFIGFOLDER >/dev/null 2>&1
+  if [ -d "$CONFIGFOLDER" ]; then
+    mkdir $CONFIGFOLDER >/dev/null 2>&1
+  fi
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $CONFIGFOLDER/$CONFIG_FILE
@@ -245,6 +247,15 @@ if [[ $EUID -ne 0 ]]; then
    echo -e "${RED}$0 must be run as root.${NC}"
    exit 1
 fi
+
+for i in {5..1}
+do
+  if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
+    pgrep -lf $COIN_DAEMON | xargs kill -9
+    purgeOldInstallation
+    echo -e "${CYAN}Purging $COIN_NAME files."
+  fi
+done
 
 if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
   echo -e "${RED}$COIN_NAME is already installed.${NC}"
