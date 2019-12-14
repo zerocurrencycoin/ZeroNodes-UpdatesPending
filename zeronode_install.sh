@@ -130,7 +130,7 @@ EOF
 
 
 function create_config() {
-  if [ -d "$CONFIGFOLDER" ]; then
+  if [ ! -d "$CONFIGFOLDER" ]; then
     mkdir $CONFIGFOLDER >/dev/null 2>&1
   fi
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
