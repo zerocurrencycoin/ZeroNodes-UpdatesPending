@@ -16,7 +16,7 @@ COIN_PORT=23801
 RPC_PORT=23811
 OLDKEY=''
 
-NODEIP=$(curl -s4 icanhazip.com)
+NODEIP=$(curl -s https://api.ipify.org)
 
 BLUE="\033[0;34m"
 YELLOW="\033[0;33m"
